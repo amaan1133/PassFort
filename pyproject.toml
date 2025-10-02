@@ -6,4 +6,5 @@ authors = ["Your Name <you@example.com>"]
 requires-python = ">=3.11"
 dependencies = [
     "cryptography>=46.0.2",
+    "flask>=3.1.2",
 ]
