@@ -232,6 +232,53 @@
             overflow-y: auto;
             font-size: 0.9em;
         }
+
+        .key-storage-item {
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+
+        .key-storage-item h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .key-section {
+            margin-bottom: 15px;
+        }
+
+        .key-section label {
+            display: block;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        .key-section .key-value {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 2px solid #e9ecef;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8em;
+            word-break: break-all;
+            max-height: 150px;
+            overflow-y: auto;
+            color: #212529;
+        }
+
+        .key-section .hash-value {
+            background: #e7f5ff;
+            color: #1971c2;
+        }
+
+        .key-actions {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -259,6 +306,12 @@
                 <h2 style="margin-top: 30px;">📊 Activity Log</h2>
                 <div class="log-area" id="log"></div>
             </div>
+        </div>
+
+        <div class="panel" style="margin-top: 20px;">
+            <h2>🔑 Stored RSA Keys & Password Hashes</h2>
+            <p style="color: #666; margin-bottom: 15px;">Keep these keys safe! You need the Private Key to recover passwords in the future.</p>
+            <div id="keysStorage"></div>
         </div>
     </div>
 
@@ -340,14 +393,17 @@
                     if (data.success) {
                         const list = document.getElementById('passwordList');
                         const select = document.getElementById('passwordSelect');
+                        const keysStorage = document.getElementById('keysStorage');
                         
                         if (data.services.length === 0) {
                             list.innerHTML = '<p style="color: #adb5bd;">No passwords saved yet.</p>';
+                            keysStorage.innerHTML = '<p style="color: #adb5bd;">No RSA keys stored yet.</p>';
                             return;
                         }
                         
                         list.innerHTML = '';
                         select.innerHTML = '<option value="">-- Select a password --</option>';
+                        keysStorage.innerHTML = '';
                         
                         data.services.forEach(s => {
                             list.innerHTML += `
@@ -360,6 +416,39 @@
                             `;
                             
                             select.innerHTML += `<option value="${s.id}">${s.service} - ${s.rsa_name}</option>`;
+
+                            // Add to keys storage section
+                            keysStorage.innerHTML += `
+                                <div class="key-storage-item">
+                                    <h3>🔐 ${s.service}</h3>
+                                    <p style="color: #51cf66; font-weight: bold; margin-bottom: 10px;">📛 ${s.rsa_name}</p>
+                                    
+                                    <div class="key-section">
+                                        <label>🔑 RSA Private Key (Save this to recover password!):</label>
+                                        <div class="key-value" id="stored-private-${s.id}">${s.private_key || 'Loading...'}</div>
+                                        <div class="key-actions">
+                                            <button class="btn-small btn-info" onclick="copyToClipboard('stored-private-${s.id}')">📋 Copy Private Key</button>
+                                            <button class="btn-small btn-success" onclick="downloadKey(${s.id}, '${s.service}', 'private')">💾 Download Private Key</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="key-section">
+                                        <label>🔓 RSA Public Key:</label>
+                                        <div class="key-value" id="stored-public-${s.id}">${s.public_key || 'Loading...'}</div>
+                                        <div class="key-actions">
+                                            <button class="btn-small btn-info" onclick="copyToClipboard('stored-public-${s.id}')">📋 Copy Public Key</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="key-section">
+                                        <label>#️⃣ Password Hash (SHA-256):</label>
+                                        <div class="key-value hash-value" id="stored-hash-${s.id}">${s.password_hash || 'Loading...'}</div>
+                                        <div class="key-actions">
+                                            <button class="btn-small btn-info" onclick="copyToClipboard('stored-hash-${s.id}')">📋 Copy Hash</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
                         });
                     }
                 });
@@ -486,6 +575,24 @@
             navigator.clipboard.writeText(text).then(() => {
                 alert('✅ Copied to clipboard!');
             });
+        }
+
+        function downloadKey(passwordId, serviceName, keyType) {
+            const elementId = `stored-${keyType}-${passwordId}`;
+            const keyContent = document.getElementById(elementId).textContent;
+            const fileName = `${serviceName}_${keyType}_key.pem`;
+            
+            const blob = new Blob([keyContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            log(`💾 Downloaded ${keyType} key for ${serviceName}`);
         }
 
         // Initialize

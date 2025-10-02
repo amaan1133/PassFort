@@ -148,10 +148,12 @@ class PasswordManager:
         }
 
     def get_all_services(self):
-        """Get list of all services with their RSA key names"""
+        """Get list of all services with their RSA key names, keys, and hashes"""
         conn = sqlite3.connect(self.db_name)
         c = conn.cursor()
-        c.execute('SELECT id, service, rsa_key_name, created_at FROM passwords ORDER BY created_at DESC')
+        c.execute('''SELECT id, service, rsa_key_name, created_at, 
+                     private_key_pem, public_key_pem, password_hash 
+                     FROM passwords ORDER BY created_at DESC''')
         results = c.fetchall()
         conn.close()
 
@@ -161,7 +163,10 @@ class PasswordManager:
                 'id': row[0],
                 'service': row[1],
                 'rsa_key_name': row[2],
-                'created_at': row[3]
+                'created_at': row[3],
+                'private_key': row[4],
+                'public_key': row[5],
+                'password_hash': row[6]
             })
         return services
 
