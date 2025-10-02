@@ -1,5 +1,5 @@
 
-# 🔐 PassFort - Cryptographic Password Manager
+ PassFort - Cryptographic Password Manager
 
 PassFort is a secure password manager built with Python that uses hybrid encryption (AES + RSA) to protect your passwords. It features a unique "Honey Vault" that shows decoy passwords if an attacker uses the wrong decryption key.
 
@@ -73,24 +73,17 @@ Click **"Generate Strong Password"** to create a random secure password.
 ## File Structure
 
 ```
-passfort/
-├── main.py                 # Main application
-├── README.md              # This file
-├── vault.json             # Real encrypted passwords
-├── honey_vault.json       # Decoy passwords
-├── private_key.pem        # Your RSA private key (keep secret!)
-└── public_key.pem         # Your RSA public key
-```
+
 
 ## Security Notes
 
-⚠️ **Important**:
+ **Important**:
 - Keep `private_key.pem` secure - anyone with it can decrypt your passwords
 - The honey vault provides security through deception but is not foolproof
 - Backup your private key in a secure location
 - Use strong master passwords if you add password protection to the key
 
-## How Honey Vault Works
+ How Honey Vault Works
 
 When you unlock with the **wrong private key**:
 1. App appears to decrypt successfully
