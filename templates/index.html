@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔐 PassFort - Cryptographic Password Manager</title>
+    <title>🔐 PassFort - Password Manager</title>
     <style>
         * {
             margin: 0;
@@ -14,133 +14,129 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1e1e1e;
-            color: #fff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             padding: 20px;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
         header {
-            background: #2d2d2d;
+            background: white;
             padding: 30px;
-            border-radius: 8px;
+            border-radius: 15px;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         h1 {
-            color: #4CAF50;
+            color: #667eea;
             font-size: 2.5em;
             margin-bottom: 10px;
         }
 
         .subtitle {
-            color: #888;
+            color: #666;
             font-size: 1.1em;
         }
 
-        .main-content {
+        .main-grid {
             display: grid;
-            grid-template-columns: 300px 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
+            margin-bottom: 20px;
         }
 
-        .sidebar {
-            background: #2d2d2d;
-            padding: 20px;
-            border-radius: 8px;
-            height: fit-content;
+        .panel {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
-        .section {
-            margin-bottom: 30px;
-        }
-
-        .section h3 {
-            margin-bottom: 15px;
-            font-size: 1.1em;
+        .panel h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
         }
 
         .btn {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 10px;
+            padding: 14px;
+            margin-bottom: 12px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 1em;
             font-weight: bold;
             color: white;
-            transition: opacity 0.3s;
+            transition: all 0.3s;
         }
 
         .btn:hover {
-            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        .btn-green { background: #4CAF50; }
-        .btn-blue { background: #2196F3; }
-        .btn-red { background: #F44336; }
-        .btn-orange { background: #FF9800; }
-        .btn-teal { background: #009688; }
-        .btn-purple { background: #9C27B0; }
-        .btn-gray { background: #666; }
+        .btn-primary { background: #667eea; }
+        .btn-success { background: #51cf66; }
+        .btn-danger { background: #ff6b6b; }
+        .btn-warning { background: #ffa94d; }
+        .btn-info { background: #339af0; }
+        .btn-secondary { background: #868e96; }
 
-        .content-area {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .panel {
-            background: #2d2d2d;
-            padding: 20px;
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #e9ecef;
             border-radius: 8px;
+            font-size: 1em;
+            transition: border 0.3s;
         }
 
-        .panel h3 {
-            margin-bottom: 15px;
-            color: #4CAF50;
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
         }
 
-        .log-box, .password-box {
-            background: #1e1e1e;
-            border: 1px solid #444;
-            border-radius: 6px;
-            padding: 15px;
-            height: 300px;
-            overflow-y: auto;
+        textarea {
             font-family: 'Courier New', monospace;
-            font-size: 0.9em;
+            resize: vertical;
+            min-height: 150px;
         }
 
-        .log-box {
-            color: #00ff00;
+        .password-list {
+            max-height: 400px;
+            overflow-y: auto;
         }
 
         .password-item {
-            background: #1a1a1a;
+            background: #f8f9fa;
             padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            border-left: 4px solid #4CAF50;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
         }
 
-        .password-item.honey {
-            border-left-color: #FF9800;
+        .password-item h3 {
+            color: #667eea;
+            margin-bottom: 8px;
         }
 
-        .status {
-            background: #333;
-            padding: 10px;
-            border-radius: 6px;
-            text-align: center;
-            margin-top: 15px;
-            color: #888;
+        .password-item p {
+            color: #666;
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+
+        .password-item .rsa-name {
+            color: #51cf66;
+            font-weight: bold;
         }
 
         .modal {
@@ -151,50 +147,22 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.7);
+            background-color: rgba(0,0,0,0.5);
         }
 
         .modal-content {
-            background-color: #2d2d2d;
-            margin: 10% auto;
+            background-color: white;
+            margin: 5% auto;
             padding: 30px;
-            border-radius: 8px;
+            border-radius: 15px;
             width: 90%;
-            max-width: 500px;
+            max-width: 600px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.3);
         }
 
         .modal-content h2 {
+            color: #667eea;
             margin-bottom: 20px;
-            color: #4CAF50;
-        }
-
-        input, textarea {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            background: #1e1e1e;
-            border: 1px solid #444;
-            border-radius: 6px;
-            color: white;
-            font-size: 1em;
-        }
-
-        textarea {
-            font-family: 'Courier New', monospace;
-            resize: vertical;
-        }
-
-        label {
-            display: block;
-            margin-top: 15px;
-            margin-bottom: 5px;
-            color: #aaa;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
         }
 
         .close {
@@ -206,30 +174,63 @@
         }
 
         .close:hover {
-            color: white;
+            color: #000;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            color: #495057;
+            font-weight: 500;
         }
 
         .key-display {
-            background: #1e1e1e;
+            background: #f8f9fa;
             padding: 15px;
-            border-radius: 6px;
+            border-radius: 8px;
             margin: 15px 0;
             font-family: 'Courier New', monospace;
             font-size: 0.85em;
             word-break: break-all;
-            max-height: 200px;
+            max-height: 300px;
             overflow-y: auto;
+            border: 2px solid #e9ecef;
         }
 
-        .copy-btn {
-            background: #2196F3;
-            color: white;
-            border: none;
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .alert-success {
+            background: #d3f9d8;
+            color: #2b8a3e;
+        }
+
+        .alert-warning {
+            background: #fff3bf;
+            color: #e67700;
+        }
+
+        .btn-small {
             padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
             font-size: 0.9em;
-            margin-top: 10px;
+            display: inline-block;
+            width: auto;
+            margin: 5px 5px 5px 0;
+        }
+
+        .log-area {
+            background: #212529;
+            color: #51cf66;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            height: 200px;
+            overflow-y: auto;
+            font-size: 0.9em;
         }
     </style>
 </head>
@@ -237,178 +238,134 @@
     <div class="container">
         <header>
             <h1>🔐 PassFort</h1>
-            <p class="subtitle">Cryptographic Password Manager with Honey Vault Protection</p>
+            <p class="subtitle">Secure Password Manager with Unique RSA Keys & SHA-256 Hashing</p>
         </header>
 
-        <div class="main-content">
-            <div class="sidebar">
-                <div class="section">
-                    <h3>🔑 Key Management</h3>
-                    <button class="btn btn-green" onclick="generateKeys()">Generate RSA Keys</button>
-                    <button class="btn btn-blue" onclick="showImportModal()">Import RSA Keys</button>
-                </div>
-
-                <div class="section">
-                    <h3>🔒 Vault Operations</h3>
-                    <button class="btn btn-red" onclick="showUnlockModal()">Unlock Vault</button>
-                    <button class="btn btn-orange" onclick="showAddPasswordModal()">Add Password</button>
-                    <button class="btn btn-teal" onclick="viewPasswords()">View Passwords</button>
-                </div>
-
-                <div class="section">
-                    <h3>🛠️ Password Tools</h3>
-                    <button class="btn btn-purple" onclick="generatePassword()">Generate Strong Password</button>
-                </div>
-
-                <div class="status" id="status">Status: Not Initialized</div>
+        <div class="main-grid">
+            <div class="panel">
+                <h2>💾 Save New Password</h2>
+                <button class="btn btn-primary" onclick="showSaveModal()">Add New Password</button>
+                <button class="btn btn-success" onclick="generatePassword()">Generate Strong Password</button>
+                
+                <h2 style="margin-top: 30px;">📋 Saved Passwords</h2>
+                <div class="password-list" id="passwordList"></div>
             </div>
 
-            <div class="content-area">
-                <div class="panel">
-                    <h3>📋 Operation Log</h3>
-                    <div class="log-box" id="log"></div>
-                </div>
-
-                <div class="panel">
-                    <h3>🔐 Stored Passwords</h3>
-                    <div class="password-box" id="passwords"></div>
-                </div>
+            <div class="panel">
+                <h2>🔓 Unlock Password</h2>
+                <p style="color: #666; margin-bottom: 15px;">Select a password and enter its unique RSA key to unlock</p>
+                <button class="btn btn-info" onclick="showUnlockModal()">Unlock with RSA Key</button>
+                
+                <h2 style="margin-top: 30px;">📊 Activity Log</h2>
+                <div class="log-area" id="log"></div>
             </div>
         </div>
     </div>
 
-    <!-- Add Password Modal -->
-    <div id="addPasswordModal" class="modal">
+    <!-- Save Password Modal -->
+    <div id="saveModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('addPasswordModal')">&times;</span>
-            <h2>Add New Password</h2>
-            <label>Service Name:</label>
-            <input type="text" id="serviceName" placeholder="e.g., Gmail, Facebook">
+            <span class="close" onclick="closeModal('saveModal')">&times;</span>
+            <h2>💾 Save New Password</h2>
+            <label>Service/Website Name:</label>
+            <input type="text" id="serviceName" placeholder="e.g., Gmail, Facebook, Netflix">
             <label>Password (leave empty to auto-generate):</label>
             <input type="password" id="passwordInput" placeholder="Enter password or leave empty">
-            <div class="modal-buttons">
-                <button class="btn btn-green" style="flex: 1;" onclick="addPassword()">Save</button>
-                <button class="btn btn-gray" style="flex: 1;" onclick="closeModal('addPasswordModal')">Cancel</button>
-            </div>
+            <button class="btn btn-primary" onclick="savePassword()">Save & Generate RSA Key</button>
         </div>
     </div>
 
-    <!-- Unlock Vault Modal -->
-    <div id="unlockModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('unlockModal')">&times;</span>
-            <h2>Unlock Vault</h2>
-            <label>Private Key (PEM format):</label>
-            <textarea id="unlockPrivateKey" rows="10" placeholder="-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"></textarea>
-            <div class="modal-buttons">
-                <button class="btn btn-red" style="flex: 1;" onclick="unlockVault()">Unlock</button>
-                <button class="btn btn-gray" style="flex: 1;" onclick="closeModal('unlockModal')">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Import Keys Modal -->
-    <div id="importModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('importModal')">&times;</span>
-            <h2>Import RSA Keys</h2>
-            <label>Private Key (PEM format):</label>
-            <textarea id="importPrivateKey" rows="10" placeholder="-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"></textarea>
-            <div class="modal-buttons">
-                <button class="btn btn-blue" style="flex: 1;" onclick="importKeys()">Import</button>
-                <button class="btn btn-gray" style="flex: 1;" onclick="closeModal('importModal')">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Generated Keys Modal -->
+    <!-- RSA Keys Display Modal -->
     <div id="keysModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('keysModal')">&times;</span>
-            <h2>Generated RSA Keys</h2>
-            <p style="color: #aaa; margin-bottom: 15px;">⚠️ Save your private key securely! You won't be able to recover your passwords without it.</p>
-            <label>Private Key:</label>
-            <div class="key-display" id="generatedPrivateKey"></div>
-            <button class="copy-btn" onclick="copyToClipboard('generatedPrivateKey')">Copy Private Key</button>
-            <label style="margin-top: 20px;">Public Key:</label>
-            <div class="key-display" id="generatedPublicKey"></div>
-            <button class="copy-btn" onclick="copyToClipboard('generatedPublicKey')">Copy Public Key</button>
-            <div class="modal-buttons">
-                <button class="btn btn-green" style="flex: 1;" onclick="closeModal('keysModal')">Done</button>
+            <h2>🔑 Your Unique RSA Keys</h2>
+            <div class="alert alert-warning">
+                ⚠️ <strong>Important:</strong> Save your private key securely! You need it to unlock this password.
             </div>
+            <label>RSA Key Name:</label>
+            <div class="key-display" id="rsaKeyName" style="background: #e7f5ff; color: #1971c2;"></div>
+            <label>Private Key (Save This!):</label>
+            <div class="key-display" id="privateKey"></div>
+            <button class="btn-small btn-info" onclick="copyToClipboard('privateKey')">📋 Copy Private Key</button>
+            <label>Public Key:</label>
+            <div class="key-display" id="publicKey"></div>
+            <button class="btn-small btn-info" onclick="copyToClipboard('publicKey')">📋 Copy Public Key</button>
+            <button class="btn btn-success" onclick="closeModal('keysModal')">Done</button>
+        </div>
+    </div>
+
+    <!-- Unlock Password Modal -->
+    <div id="unlockModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('unlockModal')">&times;</span>
+            <h2>🔓 Unlock Password</h2>
+            <label>Select Password:</label>
+            <select id="passwordSelect" class="btn btn-secondary" style="text-align: left;">
+                <option value="">-- Select a password --</option>
+            </select>
+            <label>Enter RSA Private Key:</label>
+            <textarea id="unlockPrivateKey" placeholder="-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"></textarea>
+            <button class="btn btn-info" onclick="unlockPassword()">🔓 Unlock Password</button>
+        </div>
+    </div>
+
+    <!-- Unlocked Password Modal -->
+    <div id="unlockedModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('unlockedModal')">&times;</span>
+            <h2>✅ Password Unlocked</h2>
+            <div class="alert alert-success" id="unlockedInfo"></div>
+            <label>Password:</label>
+            <div class="key-display" id="unlockedPassword" style="font-size: 1.2em; color: #2b8a3e;"></div>
+            <button class="btn-small btn-success" onclick="copyToClipboard('unlockedPassword')">📋 Copy Password</button>
+            <label>SHA-256 Hash:</label>
+            <div class="key-display" id="passwordHash"></div>
+            <button class="btn btn-primary" onclick="closeModal('unlockedModal')">Close</button>
         </div>
     </div>
 
     <script>
         function log(message) {
             const logBox = document.getElementById('log');
-            logBox.innerHTML += message + '\n';
+            const timestamp = new Date().toLocaleTimeString();
+            logBox.innerHTML += `[${timestamp}] ${message}\n`;
             logBox.scrollTop = logBox.scrollHeight;
         }
 
-        function updateStatus() {
-            fetch('/api/status')
-                .then(r => r.json())
-                .then(data => {
-                    const status = document.getElementById('status');
-                    if (data.is_unlocked) {
-                        if (data.is_honey_vault) {
-                            status.innerHTML = 'Status: Honey Vault Active';
-                            status.style.color = '#FF9800';
-                        } else {
-                            status.innerHTML = 'Status: Vault Unlocked';
-                            status.style.color = '#4CAF50';
-                        }
-                    } else if (data.has_keys) {
-                        status.innerHTML = 'Status: Keys Loaded';
-                        status.style.color = '#4CAF50';
-                    } else {
-                        status.innerHTML = 'Status: Not Initialized';
-                        status.style.color = '#888';
-                    }
-                });
-        }
-
-        function generateKeys() {
-            fetch('/api/generate-keys', { method: 'POST' })
+        function loadServices() {
+            fetch('/api/services')
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
-                        log('✓ RSA key pair generated (2048-bit)');
-                        log('✓ Keys saved to private_key.pem and public_key.pem');
-                        log('✓ Honey vault created for security');
-                        document.getElementById('generatedPrivateKey').textContent = data.private_key;
-                        document.getElementById('generatedPublicKey').textContent = data.public_key;
-                        document.getElementById('keysModal').style.display = 'block';
-                        updateStatus();
-                    } else {
-                        log('✗ Error: ' + data.error);
-                        alert('Error: ' + data.error);
+                        const list = document.getElementById('passwordList');
+                        const select = document.getElementById('passwordSelect');
+                        
+                        if (data.services.length === 0) {
+                            list.innerHTML = '<p style="color: #adb5bd;">No passwords saved yet.</p>';
+                            return;
+                        }
+                        
+                        list.innerHTML = '';
+                        select.innerHTML = '<option value="">-- Select a password --</option>';
+                        
+                        data.services.forEach(s => {
+                            list.innerHTML += `
+                                <div class="password-item">
+                                    <h3>🔒 ${s.service}</h3>
+                                    <p class="rsa-name">🔑 ${s.rsa_name}</p>
+                                    <p>📅 ${new Date(s.created_at).toLocaleString()}</p>
+                                    <button class="btn-small btn-danger" onclick="deletePassword(${s.id})">Delete</button>
+                                </div>
+                            `;
+                            
+                            select.innerHTML += `<option value="${s.id}">${s.service} - ${s.rsa_name}</option>`;
+                        });
                     }
                 });
         }
 
-        function importKeys() {
-            const privateKey = document.getElementById('importPrivateKey').value;
-            fetch('/api/import-keys', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ private_key: privateKey })
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    log('✓ RSA keys imported successfully');
-                    log('✓ Honey vault created for security');
-                    closeModal('importModal');
-                    updateStatus();
-                } else {
-                    alert('Error: ' + data.error);
-                }
-            });
-        }
-
-        function addPassword() {
+        function savePassword() {
             const service = document.getElementById('serviceName').value;
             const password = document.getElementById('passwordInput').value;
             
@@ -417,7 +374,7 @@
                 return;
             }
 
-            fetch('/api/add-password', {
+            fetch('/api/save-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ service, password })
@@ -425,75 +382,75 @@
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    if (data.password) {
-                        log(`✓ Auto-generated password for ${service}`);
-                        log(`  Password: ${data.password}`);
-                    } else {
-                        log(`✓ Password saved for ${service}`);
-                    }
-                    log('  🔒 Encrypted with AES-256');
-                    log('  🔑 AES key encrypted with RSA');
-                    log('  #️⃣  Integrity hash (SHA-256) created');
-                    closeModal('addPasswordModal');
+                    log(`✅ Password saved for ${service}`);
+                    log(`🔑 RSA Key: ${data.rsa_key_name}`);
+                    log(`#️⃣  Password hashed with SHA-256`);
+                    
+                    document.getElementById('rsaKeyName').textContent = data.rsa_key_name;
+                    document.getElementById('privateKey').textContent = data.private_key;
+                    document.getElementById('publicKey').textContent = data.public_key;
+                    
+                    closeModal('saveModal');
                     document.getElementById('serviceName').value = '';
                     document.getElementById('passwordInput').value = '';
+                    document.getElementById('keysModal').style.display = 'block';
+                    
+                    if (data.generated_password) {
+                        log(`🔐 Auto-generated password: ${data.generated_password}`);
+                    }
+                    
+                    loadServices();
                 } else {
                     alert('Error: ' + data.error);
                 }
             });
         }
 
-        function unlockVault() {
+        function unlockPassword() {
+            const passwordId = document.getElementById('passwordSelect').value;
             const privateKey = document.getElementById('unlockPrivateKey').value;
-            fetch('/api/unlock-vault', {
+            
+            if (!passwordId || !privateKey) {
+                alert('Please select a password and enter the private key');
+                return;
+            }
+
+            fetch('/api/unlock-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ private_key: privateKey })
+                body: JSON.stringify({ password_id: passwordId, private_key: privateKey })
             })
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    if (data.is_honey_vault) {
-                        log('⚠️  Vault unlocked with INCORRECT key');
-                        log('🍯 Showing HONEY VAULT (decoy data for security)');
-                    } else {
-                        log('✓ Vault unlocked successfully with CORRECT key');
-                        log('🔓 Real vault accessible');
-                    }
+                    log(`🔓 Unlocked password for ${data.service}`);
+                    
+                    document.getElementById('unlockedInfo').innerHTML = `
+                        <strong>Service:</strong> ${data.service}<br>
+                        <strong>Status:</strong> Password decrypted and verified successfully
+                    `;
+                    document.getElementById('unlockedPassword').textContent = data.password;
+                    document.getElementById('passwordHash').textContent = data.hash;
+                    
                     closeModal('unlockModal');
-                    updateStatus();
+                    document.getElementById('unlockPrivateKey').value = '';
+                    document.getElementById('unlockedModal').style.display = 'block';
                 } else {
                     alert('Error: ' + data.error);
+                    log(`❌ Failed to unlock: ${data.error}`);
                 }
             });
         }
 
-        function viewPasswords() {
-            fetch('/api/view-passwords')
+        function deletePassword(id) {
+            if (!confirm('Are you sure you want to delete this password?')) return;
+            
+            fetch(`/api/delete-password/${id}`, { method: 'DELETE' })
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
-                        const passwordBox = document.getElementById('passwords');
-                        if (data.passwords.length === 0) {
-                            passwordBox.innerHTML = 'No passwords stored in vault.';
-                            log('ℹ️  No passwords in vault');
-                            return;
-                        }
-
-                        const vaultType = data.is_honey_vault ? '🍯 HONEY VAULT (DECOY)' : '🔐 REAL VAULT';
-                        let html = `<div style="text-align: center; margin-bottom: 20px; font-weight: bold; color: ${data.is_honey_vault ? '#FF9800' : '#4CAF50'}">${vaultType}</div>`;
-                        
-                        data.passwords.forEach((p, i) => {
-                            html += `
-                                <div class="password-item ${data.is_honey_vault ? 'honey' : ''}">
-                                    <div><strong>#${i+1} ${p.service}</strong></div>
-                                    <div style="margin: 10px 0;">Password: <code>${p.password}</code></div>
-                                    <div style="color: ${p.integrity.includes('OK') ? '#4CAF50' : '#F44336'}">Integrity: ${p.integrity}</div>
-                                </div>
-                            `;
-                        });
-                        passwordBox.innerHTML = html;
-                        log(`✓ Displayed ${data.passwords.length} password(s) from ${vaultType}`);
+                        log('🗑️ Password deleted');
+                        loadServices();
                     } else {
                         alert('Error: ' + data.error);
                     }
@@ -505,25 +462,19 @@
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
-                        log(`✓ Generated strong password: ${data.password}`);
                         navigator.clipboard.writeText(data.password);
-                        alert(`Generated password:\n\n${data.password}\n\n✓ Copied to clipboard!`);
-                    } else {
-                        alert('Error: ' + data.error);
+                        alert(`Generated strong password:\n\n${data.password}\n\n✅ Copied to clipboard!`);
+                        log(`🔐 Generated password: ${data.password}`);
                     }
                 });
         }
 
-        function showAddPasswordModal() {
-            document.getElementById('addPasswordModal').style.display = 'block';
+        function showSaveModal() {
+            document.getElementById('saveModal').style.display = 'block';
         }
 
         function showUnlockModal() {
             document.getElementById('unlockModal').style.display = 'block';
-        }
-
-        function showImportModal() {
-            document.getElementById('importModal').style.display = 'block';
         }
 
         function closeModal(id) {
@@ -533,16 +484,15 @@
         function copyToClipboard(elementId) {
             const text = document.getElementById(elementId).textContent;
             navigator.clipboard.writeText(text).then(() => {
-                alert('Copied to clipboard!');
+                alert('✅ Copied to clipboard!');
             });
         }
 
         // Initialize
-        log('🚀 PassFort initialized successfully');
-        log('ℹ️  Generate or import RSA keys to begin');
-        updateStatus();
+        log('🚀 PassFort initialized');
+        log('💡 Each password gets a unique RSA key');
+        loadServices();
 
-        // Close modals when clicking outside
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
                 event.target.style.display = 'none';
