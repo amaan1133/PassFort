@@ -526,7 +526,7 @@ def add_phishing_url():
 
 @app.route('/api/phishing-database')
 def get_phishing_database():
-    """Get phishing database"""
+    """ phishing database"""
     try:
         db = phishing_detector.get_phishing_database()
         return jsonify({'success': True, 'phishing_urls': db})
