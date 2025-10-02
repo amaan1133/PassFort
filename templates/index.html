@@ -778,13 +778,13 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
-            log(`💾 Downloaded ${keyType} key for ${serviceName}`);
+            log(` Downloaded ${keyType} key for ${serviceName}`);
         }
 
         // Initialize
-        log('🚀 PassFort initialized');
-        log('💡 Each password gets a unique RSA key');
-        log('🛡️ Phishing detector ready');
+        log(' PassFort initialized');
+        log(' Each password gets a unique RSA key');
+        log(' Phishing detector ready');
         loadServices();
         loadPhishingDatabase();
 
