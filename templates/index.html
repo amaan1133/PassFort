@@ -262,6 +262,38 @@
             background: white;
             padding: 12px;
             border-radius: 6px;
+
+
+        <div class="panel" style="margin-top: 20px;">
+            <h2>🛡️ Phishing Detector</h2>
+            <p style="color: #666; margin-bottom: 15px;">Check URLs for phishing attempts before entering passwords</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 15px;">🔍 Check URL</h3>
+                    <input type="text" id="checkUrl" placeholder="https://example.com/login">
+                    <button class="btn btn-info" onclick="checkPhishing()">🔍 Analyze URL</button>
+                    
+                    <div id="phishingResult" style="margin-top: 20px;"></div>
+                </div>
+                
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 15px;">➕ Add to Phishing Database</h3>
+                    <input type="text" id="addPhishingUrl" placeholder="https://fake-paypal.com">
+                    <select id="threatType" class="btn btn-secondary" style="text-align: left; margin: 10px 0;">
+                        <option value="phishing">Phishing</option>
+                        <option value="malware">Malware</option>
+                        <option value="scam">Scam</option>
+                        <option value="typosquatting">Typosquatting</option>
+                    </select>
+                    <button class="btn btn-danger" onclick="addPhishingUrl()">Add to Database</button>
+                    
+                    <h3 style="color: #667eea; margin: 20px 0 15px 0;">📊 Phishing Database</h3>
+                    <div id="phishingDatabase" style="max-height: 300px; overflow-y: auto;"></div>
+                </div>
+            </div>
+        </div>
+
             border: 2px solid #e9ecef;
             font-family: 'Courier New', monospace;
             font-size: 0.8em;
@@ -552,6 +584,160 @@
                 .then(data => {
                     if (data.success) {
                         navigator.clipboard.writeText(data.password);
+
+
+        function checkPhishing() {
+            const url = document.getElementById('checkUrl').value;
+            
+            if (!url) {
+                alert('Please enter a URL to check');
+                return;
+            }
+
+            fetch('/api/check-url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const analysis = data.analysis;
+                    displayPhishingResult(analysis);
+                    log(`🔍 Analyzed URL: ${url} - Threat: ${analysis.threat_level}`);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            });
+        }
+
+        function displayPhishingResult(analysis) {
+            const resultDiv = document.getElementById('phishingResult');
+            
+            let threatColor = '#51cf66';
+            let threatIcon = '✅';
+            let threatText = 'SAFE';
+            
+            if (analysis.threat_level === 'critical') {
+                threatColor = '#ff6b6b';
+                threatIcon = '🚨';
+                threatText = 'CRITICAL THREAT';
+            } else if (analysis.threat_level === 'high') {
+                threatColor = '#ff922b';
+                threatIcon = '⚠️';
+                threatText = 'HIGH RISK';
+            } else if (analysis.threat_level === 'medium') {
+                threatColor = '#ffa94d';
+                threatIcon = '⚡';
+                threatText = 'MEDIUM RISK';
+            } else if (analysis.threat_level === 'low') {
+                threatColor = '#ffd43b';
+                threatIcon = '⚠️';
+                threatText = 'LOW RISK';
+            }
+            
+            let html = `
+                <div style="background: ${threatColor}22; padding: 20px; border-radius: 10px; border-left: 5px solid ${threatColor};">
+                    <h3 style="color: ${threatColor}; margin-bottom: 15px;">${threatIcon} ${threatText}</h3>
+                    <p><strong>Domain:</strong> ${analysis.domain}</p>
+                    <p><strong>Reputation Score:</strong> ${analysis.reputation_score}/100</p>
+                    <p><strong>HTTPS:</strong> ${analysis.certificate_validation.uses_https ? '✅' : '❌'}</p>
+                    <p><strong>Safe to Auto-fill:</strong> ${analysis.safe_to_autofill ? '✅ Yes' : '❌ No'}</p>
+            `;
+            
+            if (analysis.is_in_phishing_db) {
+                html += `<p style="color: #ff6b6b; font-weight: bold;">⚠️ Found in phishing database: ${analysis.phishing_threat_type}</p>`;
+            }
+            
+            if (analysis.similar_to_legitimate.length > 0) {
+                html += '<p style="color: #ff922b; font-weight: bold; margin-top: 10px;">⚠️ Similar to legitimate domains:</p><ul style="margin-left: 20px;">';
+                analysis.similar_to_legitimate.forEach(s => {
+                    html += `<li>${s.warning} (${s.similarity}% similar to ${s.legitimate_domain})</li>`;
+                });
+                html += '</ul>';
+            }
+            
+            if (analysis.suspicious_patterns.length > 0) {
+                html += '<p style="color: #ffa94d; font-weight: bold; margin-top: 10px;">⚡ Suspicious patterns detected:</p><ul style="margin-left: 20px;">';
+                analysis.suspicious_patterns.forEach(p => {
+                    html += `<li>${p}</li>`;
+                });
+                html += '</ul>';
+            }
+            
+            html += '</div>';
+            resultDiv.innerHTML = html;
+        }
+
+        function addPhishingUrl() {
+            const url = document.getElementById('addPhishingUrl').value;
+            const threatType = document.getElementById('threatType').value;
+            
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+
+            fetch('/api/add-phishing-url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url, threat_type: threatType })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    log(`🚨 Added ${url} to phishing database (${threatType})`);
+                    document.getElementById('addPhishingUrl').value = '';
+                    loadPhishingDatabase();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            });
+        }
+
+        function loadPhishingDatabase() {
+            fetch('/api/phishing-database')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const dbDiv = document.getElementById('phishingDatabase');
+                        
+                        if (data.phishing_urls.length === 0) {
+                            dbDiv.innerHTML = '<p style="color: #adb5bd;">No phishing URLs in database</p>';
+                            return;
+                        }
+                        
+                        dbDiv.innerHTML = '';
+                        data.phishing_urls.forEach(url => {
+                            dbDiv.innerHTML += `
+                                <div class="password-item" style="border-left-color: #ff6b6b;">
+                                    <h3 style="color: #ff6b6b;">🚨 ${url.domain}</h3>
+                                    <p style="font-size: 0.85em; word-break: break-all;">${url.url}</p>
+                                    <p>Type: ${url.threat_type}</p>
+                                    <p>Added: ${new Date(url.added_at).toLocaleString()}</p>
+                                    <button class="btn-small btn-danger" onclick="deletePhishingUrl(${url.id})">Delete</button>
+                                </div>
+                            `;
+                        });
+                    }
+                });
+        }
+
+        function deletePhishingUrl(id) {
+            if (!confirm('Remove this URL from phishing database?')) return;
+            
+            fetch(`/api/delete-phishing-url/${id}`, { method: 'DELETE' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        log('🗑️ Removed URL from phishing database');
+                        loadPhishingDatabase();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                });
+        }
+
                         alert(`Generated strong password:\n\n${data.password}\n\n✅ Copied to clipboard!`);
                         log(`🔐 Generated password: ${data.password}`);
                     }
@@ -598,7 +784,9 @@
         // Initialize
         log('🚀 PassFort initialized');
         log('💡 Each password gets a unique RSA key');
+        log('🛡️ Phishing detector ready');
         loadServices();
+        loadPhishingDatabase();
 
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
