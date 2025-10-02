@@ -296,7 +296,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "cryptography", specifier = ">=46.0.2" },
-    { name = "flask", specifier = ">=3.1.2" },
+    { name = "flask", specifier = ">=3.1.2" }
 ]
 
 [[package]]
